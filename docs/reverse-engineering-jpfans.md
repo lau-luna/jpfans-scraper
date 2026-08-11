@@ -96,7 +96,30 @@ Discovered by testing the sort dropdown in the UI:
 | `4` | Price: high to low |
 | `5` | "I like sorting" — presumably randomized order |
 
-For polling purposes, `sort=2` is the one to use — newest listings first, so new items show up at the top of the result set on each poll instead of being buried by relevance ranking.
+### Pagination behavior
+
+`pageSize` is capped server-side (see below) regardless of the value sent — but `page`
+still works normally as an offset over the server's fixed page size. Consecutive pages
+can overlap slightly (a couple of items from the end of one page reappear at the start
+of the next), likely because the underlying Mercari result set shifts between calls as
+listings are added/removed. Not an issue for polling with id-based dedupe.
+
+### `pageSize` cap
+
+Requesting a high `pageSize` (e.g. `9999`) does not return that many items — the API
+caps the result count server-side. Observed with `jq '.data.items | length'` across
+different high-inventory keywords:
+
+| Keyword | Items returned |
+|---------|-----------------|
+| `ps vita junk` | 90 |
+| `ps vita games` | 90–96 (varied across runs) |
+| `playstation 2` | 95 |
+
+Not a confirmed fixed round number — seems to hover in the ~90-96 range regardless of
+how high `pageSize` is set. For practical purposes, don't request more than ~90-95;
+the API won't return more anyway.
+
 Response item shape:
 ```json
 {
@@ -110,7 +133,59 @@ Response item shape:
 ```
 Note: `price` comes back as a string, needs parsing. `id` is the Mercari item id — this is what I should use as the dedupe key for polling.
 
+### Minimal required headers for the POST
+
+Confirmed via `curl` testing — the request fails (returns HTML instead of JSON) if
+`Accept` or `User-Agent` are missing. Formalized minimal request:
+
+```bash
+curl -X POST 'https://jpfans.com/search-info/search?lang=en&language=en&wmc-currency=USD' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:153.0) Gecko/20100101 Firefox/153.0' \
+  -d '{
+    "platform": "mercari",
+    "cacheDisabled": false,
+    "category": [],
+    "keyword": "psp junk",
+    "excludeKeyword": "",
+    "itemTypes": [],
+    "brands": [],
+    "productCondition": [],
+    "sizes": [],
+    "auctionOptions": "",
+    "priceOptions": "",
+    "priceMin": 0,
+    "priceMax": 0,
+    "shippingCost": [],
+    "colors": [],
+    "page": 1,
+    "pageSize": 90,
+    "sort": "2",
+    "shopId": "",
+    "userId": "",
+    "translateKeywords": true,
+    "lang": "en",
+    "language": "en",
+    "site": "jp"
+  }'
+```
+
+Required headers:
+- `Content-Type: application/json` — otherwise the body isn't parsed as JSON server-side.
+- `Accept: application/json` — without this, got back an HTML response instead of JSON.
+- `User-Agent` — a real browser UA string; not confirmed if any UA works or if it needs to look legitimate, but a blank/default `curl` UA didn't produce JSON.
+
+No cookies or auth tokens needed (see Cloudflare section below).
+
 ### Cloudflare
 
 The site is behind Cloudflare (`cf_clearance` cookie observed on requests made from the browser). Confirmed via `curl` **without** any cookies that `POST /search-info/search` works fine without `cf_clearance` — so this specific endpoint isn't gated by the challenge, unlike (presumably) the rest of the site. No need for a headless browser for this call.
 
+### Client inconsistency
+
+The endpoint responds with JSON when called via `curl`, but returns Cloudflare's
+"Just a moment..." JS challenge page when called via Insomnia — likely due to
+TLS/connection-level fingerprinting rather than headers, since headers were
+otherwise equivalent. Not yet tested with `java.net.http.HttpClient`; if it also
+gets challenged, this needs a real workaround (see Cloudflare section).
