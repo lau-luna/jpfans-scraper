@@ -6,6 +6,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import org.lautaro.jpfansscraper.model.SearchResponse;
+
 import com.google.gson.Gson;
 
 public class JPFansClient {
@@ -70,10 +72,14 @@ public class JPFansClient {
     
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
+    System.out.println(response);
+
     System.out.println(response.statusCode());
     System.out.println(response.body());
     
-    // Gson gson = new Gson();
-    // Object response = gson.fromJson(jsonResponse, Object.class);
+    Gson gson = new Gson();
+    SearchResponse searchResponse = gson.fromJson(response.body(), SearchResponse.class);
+
+    System.out.println(searchResponse);
   }
 }

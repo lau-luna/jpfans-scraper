@@ -25,4 +25,18 @@ public class Item {
     this.image = image;
     this.internalCode = internalCode;
   }
+
+  @Override
+  public String toString() {
+    String s = "";
+    s += "    id: " + id + "\n";
+    s += "    name: " + name + "\n";
+    s += "    nameI18n: " + nameI18n + "\n";
+    s += "    price: " + price + "\n";
+    s += "    image: " + image + "\n";
+    s += "    internalCode: " + internalCode + "\n";
+    s += "\n";
+
+    return s;
+  }
 }
