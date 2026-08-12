@@ -178,6 +178,36 @@ Required headers:
 
 No cookies or auth tokens needed (see Cloudflare section below).
 
+### Product description translation (GET)
+
+The `content-inner` block on the product detail page ships with the **raw Japanese
+description**, untranslated — the English version shown after clicking "View
+Translation" comes from a separate on-demand call, triggered only when the user clicks
+that button.
+
+`GET /search-info/product/description-translate`
+
+`https://jpfans.com/search-info/product/description-translate?id=m70594833686&detailId=&subId=&platform=mercari&buyingOptionIndex=0&cacheDisabled=false&parentId=&site=jp&lang=en&language=en&wmc-currency=USD`
+
+Response:
+```json
+{
+  "code": 200,
+  "data": {
+    "description": "・バッテリー蓋の止め部が欠けているため...",
+    "descriptionI18n": "Because the stop part of the battery lid is missing...",
+    "cache": true
+  },
+  "msg": "操作成功"
+}
+```
+
+`descriptionI18n` is the English translation — this is what should be used instead of
+parsing/translating `content-inner` from the HTML. `id` is the Mercari item id (same as
+elsewhere); `detailId`, `subId`, and `parentId` can be sent empty for a plain Mercari
+item, based on what the frontend sent for this listing (not yet tested whether they
+matter for other listing types).
+
 ### Cloudflare
 
 The site is behind Cloudflare (`cf_clearance` cookie observed on requests made from the browser). Confirmed via `curl` **without** any cookies that `POST /search-info/search` works fine without `cf_clearance` — so this specific endpoint isn't gated by the challenge, unlike (presumably) the rest of the site. No need for a headless browser for this call.
