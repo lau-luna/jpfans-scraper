@@ -21,6 +21,7 @@ Running entirely in the terminal keeps it lightweight enough to leave running in
 - **Gson**: for JSON parsing (see [`docs/cheatsheet-gson.md`](docs/cheatsheet-gson.md)).
 - **sqlite-jdbc**: for SQLite database handling (tracking already-seen listings for dedupe).
 - `java.net.http.HttpClient`: built-in, used to call JPFans' internal search API directly (see [`docs/cheatsheet-httpclient.md`](docs/cheatsheet-httpclient.md)).
+
 **Jsoup was dropped**: initially planned for HTML scraping, but reverse engineering JPFans' frontend (see docs below) turned up an internal JSON search API that the site itself uses — calling it directly returns structured, already-translated data, with no HTML parsing needed. Notes on Jsoup are kept in [`docs/jsoup.md`](docs/jsoup.md) in case scraping is ever needed again as a fallback.
  
 ## Documentation
