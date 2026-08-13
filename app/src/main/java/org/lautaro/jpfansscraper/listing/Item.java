@@ -1,4 +1,4 @@
-package org.lautaro.jpfansscraper.model;
+package org.lautaro.jpfansscraper.listing;
 
 public class Item {
   protected String id;
@@ -26,30 +26,25 @@ public class Item {
     this.internalCode = internalCode;
   }
 
-  public String getId() {
-    return id;
+  @Override
+  public boolean equals(Object o) {
+    if (o == null)
+      return false;
+
+    if (!(o instanceof Item))
+      return false;
+
+    Item item = (Item) o;
+
+    if (!item.id.equals(this.id))
+      return false;
+
+    return true;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public String getTranslatedName() {
-    return nameI18n;
-  }
-
-  /**
-   * Returns the price of item on yen.
-   */
-  public String getPrice() {
-    return price;
-  }
-
-  /**
-   * Returns the URL of the item image
-   */
-  public String getImageUrl() {
-    return image;
+  @Override
+  public int hashCode() {
+    return id.hashCode();
   }
 
   @Override

@@ -1,5 +1,7 @@
 package org.lautaro.jpfansscraper.model;
 
+import java.util.List;
+
 public class SearchResponse {
   protected int code;
   protected Data data;
@@ -9,6 +11,13 @@ public class SearchResponse {
     this.code = code;
     this.data = data;
     this.msg = msg;
+  }
+  
+  /**
+   * Returns the item for the response
+   */
+  public List<Item> getItems() {
+    return data.getItems();
   }
 
   @Override

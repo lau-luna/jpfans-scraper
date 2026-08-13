@@ -1,6 +1,7 @@
 package org.lautaro.jpfansscraper.model;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Data {
   protected List<Item> items;
@@ -25,10 +26,17 @@ public class Data {
     this.isAuction = isAuction;
   }
 
+  public List<Item> getItems() {
+    if (items == null)
+      throw new NoSuchElementException();
+
+    return items;
+  }
+
   @Override
   public String toString() {
     String s = "";
-    s += "  items:" + "\n";
+    s += "  items (" + items.size() + "):" + "\n";
 
     for (Item item : items) {
       s += item.toString();
