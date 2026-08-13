@@ -13,7 +13,7 @@ public class Main {
     List<Item> items = new LinkedList<>();
 
     try {
-      items = client.searchItems("project diva psp", 0, 0, 1, false);
+      items = client.searchItems("project diva psp", 0, 0, 5, false);
     } catch (Exception e) {
       System.out.println(e.toString());
     }

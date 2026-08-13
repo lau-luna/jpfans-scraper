@@ -113,6 +113,7 @@ public class JPFansClient {
     System.out.println("Total Fetched items: " + totalFetchedItems);
     System.out.println("Unique ids: " + uniqueItems.size());
     System.out.println("Repeated items: " + repeatedCount);
+    System.out.println("Sort type: " + sort);
 
     return new LinkedList<>(uniqueItems.values());
   }

@@ -96,6 +96,31 @@ Discovered by testing the sort dropdown in the UI:
 | `4` | Price: high to low |
 | `5` | "I like sorting" — presumably randomized order |
 
+
+### Total result count varies by `sort` value
+
+Paginating to exhaustion (looping `page` until an empty response) for the same keyword
+and filters, changing only `sort`, returns very different total unique item counts:
+
+| `sort` | Meaning | Pages fetched | Total fetched | Unique ids | Repeated |
+|--------|---------|----------------|----------------|------------|----------|
+| `1` | Recommended | 9 | 709 | 619 | 90 |
+| `2` | Latest first | 7 | 569 | 479 | 90 |
+| `3` | Price: low to high | 5 | 373 | 276 | 97 |
+| `4` | Price: high to low | 5 | 372 | 274 | 98 |
+| `5` | "I like sorting" | 5 | 257 | 211 | 46 |
+
+This is a large, consistent gap (619 vs 211 unique items for the same search) — not
+just reordering the same result set. Each sort mode appears to hit its own pagination
+cutoff (returns an empty page) at a different point, meaning **the reachable result set
+depends on which `sort` value is used**, not just its order.
+
+Practical implication: if a full/exhaustive scrape of a keyword is ever needed, `sort=1`
+(Recommended) surfaces the most items of the ones tested. For polling purposes this
+doesn't matter much (`sort=2`, Latest first, is still the right choice — new listings
+show up early regardless of total reachable count), but it's worth keeping in mind that
+no single sort value guarantees seeing 100% of a keyword's live listings.
+
 ### Pagination behavior
 
 `pageSize` is capped server-side (see below) regardless of the value sent — but `page`
